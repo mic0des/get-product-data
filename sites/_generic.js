@@ -29,7 +29,7 @@ module.exports = {
     const options = {}
     if (proxy) options.agent = new HttpsProxyAgent(new URL(proxy))
     const res = await fetch(url, options)
-    if (!res.ok) throw new Error(`Res not ok. Status: ${res.status} ${res.statusText}`)
+    if (!res.ok) return "Site unscrapable"
 
     const html = await res.text()
     const $ = cheerio.load(html)
