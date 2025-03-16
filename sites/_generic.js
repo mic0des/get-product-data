@@ -28,27 +28,32 @@ module.exports = {
   async getter (url, proxy) {
     const options = {}
     if (proxy) options.agent = new HttpsProxyAgent(new URL(proxy))
-    const res = await fetch(url, options)
-    if (!res.ok) return "Site unscrapable" 
 
-    const html = await res.text()
-    const $ = cheerio.load(html)
+    try {
+      const res = await fetch(url, options)
+      if (!res.ok) return "Site unscrapable"
 
-    const meta = metaFactory($)
+      const html = await res.text()
+      const $ = cheerio.load(html)
 
-    const name = meta('og:title')
+      const meta = metaFactory($)
 
-    let price = meta('og:price')
-    if (!price) {
-      const amount = meta('og:price:amount', 'product:price:amount')
-      const currency = meta('og:price:currency', 'product:price:currency')
+      const name = meta('og:title')
 
-      price = amount
-      if (amount && currency) price += ` ${currency}`
+      let price = meta('og:price')
+      if (!price) {
+        const amount = meta('og:price:amount', 'product:price:amount')
+        const currency = meta('og:price:currency', 'product:price:currency')
+
+        price = amount
+        if (amount && currency) price += ` ${currency}`
+      }
+
+      const image = meta('og:image')
+
+      return { name, price, image }
+    } catch {
+      return "Site unscrapable"
     }
-
-    const image = meta('og:image')
-
-    return { name, price, image }
   }
 }
